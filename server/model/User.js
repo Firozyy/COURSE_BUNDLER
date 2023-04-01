@@ -3,6 +3,7 @@ import validator from 'validator'
 import Jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
+import crypto from 'crypto'
 const schema = new mongoose.Schema({
     name: {
         type: String,
@@ -15,9 +16,9 @@ const schema = new mongoose.Schema({
         validate: validator.isEmail,
     },
     password: {
-        require: [true, 'please enter your password'],
-        minLenngth: [6, 'atleast 6 charector'],
         type: String,
+        require: [true, 'please enter your password'],
+        minLength: [6, 'atleast 6 charector'],
         select: false,
     },
     role: {
@@ -58,23 +59,39 @@ const schema = new mongoose.Schema({
     resetpasswordExpire: String
 })
 
-schema.methods.getJWTtoke =  function () {
-    return  Jwt.sign({ _id: this._id }, process.env.secreKey, {
+schema.methods.getJWTtoke = function () {
+    return Jwt.sign({ _id: this._id }, process.env.secreKey, {
         expiresIn: process.env.jwtExpiry
     })
 };
 // password hasing
-schema.pre('save' , async function (next) {
+schema.pre('save', async function (next) {
 
-    if(!this.isModified('password')) return next();
+    if (!this.isModified('password')) return next();
 
-    this.password= await bcrypt.hash(this.password,10)
+    this.password = await bcrypt.hash(this.password, 10)
     next();
 })
 //password check encrypt
 schema.methods.comaparePassword = async function (password) {
-    return await bcrypt.compare(password,this.password)
-    
+    return await bcrypt.compare(password, this.password)
+
+};
+
+
+// resset token
+
+schema.methods.getRestToken = async function () {
+
+    const resetToken = crypto.randomBytes(20).toString('hex');
+
+    this.resetpasswordToken = crypto.createHash('sha256')
+        .update(resetToken)
+        .digest('hex');
+
+    //expiry setting
+    this.resetpasswordExpire = Date.now() + 15 * 60 * 1000;
+    return resetToken;
 };
 
 
