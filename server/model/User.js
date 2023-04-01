@@ -79,7 +79,7 @@ schema.methods.comaparePassword = async function (password) {
 };
 
 
-// resset token
+// resset token /password
 
 schema.methods.getRestToken = async function () {
 
