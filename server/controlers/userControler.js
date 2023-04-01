@@ -191,7 +191,7 @@ export const resetPassword = catchasyncerrer(async (req, res, next) => {
         .update(token)
         .digest('hex');
 
-console.log(resetpasswordToken);
+
 
     const user = await User.findOne({
         resetpasswordToken,
