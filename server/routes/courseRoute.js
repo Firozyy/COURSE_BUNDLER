@@ -1,9 +1,19 @@
 import express from "express";
-import  {getAllCourse}  from "../controlers/courseControl.js";
-import  {createCourse } from "../controlers/courseControl.js";
-const router =express.Router();
+import { addcourseleture, deletCourse, getAllCourse, getcourseleture } from "../controlers/courseControl.js";
+import { createCourse } from "../controlers/courseControl.js";
+import singleupload from "../midlewares/multer.js";
+import { adminAuthanticate, isAuthanticate } from "../midlewares/auth.js";
+const router = express.Router();
+
 //get all course without letures
+
 router.route("/courses").get(getAllCourse);
+
 //create cousrses new . only admin
-router.route("/createcourse").post(createCourse);
+
+router.route("/createcourse").post(isAuthanticate, adminAuthanticate, singleupload, createCourse);
+
+router.route("/course/:id").get(isAuthanticate, getcourseleture)
+    .post(isAuthanticate, adminAuthanticate, singleupload, addcourseleture)
+    .delete(isAuthanticate, adminAuthanticate, deletCourse)
 export default router;

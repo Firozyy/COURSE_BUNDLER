@@ -4,6 +4,8 @@ import { sentToken } from "../utils/sentToken.js";
 import ErrorHandler from '../utils/errorHandler.js'
 import { sentEmail } from "../utils/sentemail.js";
 import crypto from 'crypto'
+import { Course } from "../model/Course.js";
+import { log } from "util";
 
 
 export const register = catchasyncerrer(async (req, res, next) => {
@@ -205,12 +207,98 @@ export const resetPassword = catchasyncerrer(async (req, res, next) => {
         return next(new ErrorHandler('token is invalid or has been expired'))
     };
 
-   user.password=req.body.password;
+    user.password = req.body.password;
 
-   user.resetpasswordExpire=undefined;
-   user.resetpasswordToken=undefined;
+    user.resetpasswordExpire = undefined;
+    user.resetpasswordToken = undefined;
 
-   await user.save();
+    await user.save();
+    res.status(200).json({
+        success: true,
+        message: 'password chnage successfully',
+    })
+});
+
+//addtoplaylist
+
+export const addtoplaylist = catchasyncerrer(async (req, res, next) => {
+
+    const user = await User.findById(req.user._id);
+
+
+
+
+    const course = await Course.findById(req.body.id);
+
+
+    if (!course) {
+        return next(new ErrorHandler("invlaid course id", 404));
+    };
+
+
+    const itemExist = user.playlist.find((item) => {
+       
+        if (item.course.toString() === course._id.toString()) {
+          return true
+        }
+    });
+
+
+    if (itemExist) {
+        return next(new ErrorHandler("already exist", 409));
+    };
+
+    user.playlist.push({
+        course: course._id,
+        poster: course.poster.url
+    })
+
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'added to playlist successfully',itemExist
+       
+    })
+});
+
+//removFromplaylistt
+
+export const removeFromplaylistt = catchasyncerrer(async (req, res, next) => {
+
+
+    const user = await User.findById(req.user._id);
+
+
+
+
+    const course = await Course.findById(req.query.id);
+
+
+    if (!course) {
+        return next(new ErrorHandler("invlaid course id", 404));
+    };
+
+
+    const newPlaylist = user.playlist.filter((item) => {
+       
+     if(  item.course.toString() !== course._id.toString()){
+        return item
+     }
+       
+    });
+
+
+user.playlist=newPlaylist;
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'Removed successfully'
+       
+    })
+
+
     res.status(200).json({
         success: true,
         message: 'password chnage successfully',

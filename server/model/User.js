@@ -23,9 +23,9 @@ const schema = new mongoose.Schema({
     },
     role: {
         enum: ["admin", 'user'],
-        default: 'user',
+        default: "user",
         type: String,
-        select: false,
+        
     },
     subscription: {
         id: String,
@@ -79,7 +79,7 @@ schema.methods.comaparePassword = async function (password) {
 };
 
 
-// resset token /password
+// resset token passwor
 
 schema.methods.getRestToken = async function () {
 

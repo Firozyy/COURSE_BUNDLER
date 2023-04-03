@@ -11,25 +11,27 @@ const schema = new mongoose.Schema({
         requires: [true, 'please enter course title'],
         minlength: [4, 'title must be at least 4 charecters'],
     },
-    letures: [
+    lectures: [
         {
             title: {
                 type: String,
-                required: true
+                required: true,
+            },
+            description: {
+                type: String,
+                required: true,
             },
             video: {
                 public_id: {
                     type: String,
-                    require: true
+                    required: true,
                 },
                 url: {
                     type: String,
-                    require: true
+                    required: true,
                 },
-
-
             },
-        }
+        },
     ],
     poster: {
         public_id: {
