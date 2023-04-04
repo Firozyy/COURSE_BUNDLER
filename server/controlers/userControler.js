@@ -5,18 +5,18 @@ import ErrorHandler from '../utils/errorHandler.js'
 import { sentEmail } from "../utils/sentemail.js";
 import crypto from 'crypto'
 import { Course } from "../model/Course.js";
-import { log } from "util";
+import cloudinary from 'cloudinary'
+import getDataUri from "../utils/dataUri.js";
 
 
 export const register = catchasyncerrer(async (req, res, next) => {
 
 
-
     const { name, email, password, role } = req.body
-
+    const file = req.file;
     let user = await User.findOne({ email });
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !file) {
         return next(new ErrorHandler("please add all fields", 400))
     };
 
@@ -26,10 +26,19 @@ export const register = catchasyncerrer(async (req, res, next) => {
         return next(new ErrorHandler("user already registered", 409))
     };
 
+   
+    const fileUri = getDataUri(file);
+
+    const mycloud = await cloudinary.v2.uploader.upload(fileUri.content);
 
     user = await User.create({
-        name, email, password, role, avatar: {
-            public_id: 'temp', url: 'temp'
+        name,
+        email,
+        password,
+        role,
+        avatar: {
+            public_id: mycloud.public_id,
+            url: mycloud.secure_url
         }
     });
 
@@ -146,8 +155,25 @@ export const updateProfile = catchasyncerrer(async (req, res, next) => {
 
 export const updateprfilepicture = catchasyncerrer(async (req, res, next) => {
 
+    const file = req.file;
 
+    const user = await User.findById(req.user._id);
+
+    const fileUri = getDataUri(file);
+
+    
+
+    const mycloud = await cloudinary.v2.uploader.upload(fileUri.content);
     // cloudinary add
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+
+
+    user.avatar={
+      public_id:mycloud.public_id,
+      url:mycloud.secure_url
+    }
+   
+    await user.save();
 
     res.status(200).json({
         success: true,
@@ -237,9 +263,9 @@ export const addtoplaylist = catchasyncerrer(async (req, res, next) => {
 
 
     const itemExist = user.playlist.find((item) => {
-       
+
         if (item.course.toString() === course._id.toString()) {
-          return true
+            return true
         }
     });
 
@@ -257,8 +283,8 @@ export const addtoplaylist = catchasyncerrer(async (req, res, next) => {
 
     res.status(200).json({
         success: true,
-        message: 'added to playlist successfully',itemExist
-       
+        message: 'added to playlist successfully', itemExist
+
     })
 });
 
@@ -281,21 +307,21 @@ export const removeFromplaylistt = catchasyncerrer(async (req, res, next) => {
 
 
     const newPlaylist = user.playlist.filter((item) => {
-       
-     if(  item.course.toString() !== course._id.toString()){
-        return item
-     }
-       
+
+        if (item.course.toString() !== course._id.toString()) {
+            return item
+        }
+
     });
 
 
-user.playlist=newPlaylist;
+    user.playlist = newPlaylist;
     await user.save();
 
     res.status(200).json({
         success: true,
         message: 'Removed successfully'
-       
+
     })
 
 

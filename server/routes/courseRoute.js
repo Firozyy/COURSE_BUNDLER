@@ -1,5 +1,5 @@
 import express from "express";
-import { addcourseleture, deletCourse, getAllCourse, getcourseleture } from "../controlers/courseControl.js";
+import { addcourseleture, deletCourse, deletlecture, getAllCourse, getcourseleture } from "../controlers/courseControl.js";
 import { createCourse } from "../controlers/courseControl.js";
 import singleupload from "../midlewares/multer.js";
 import { adminAuthanticate, isAuthanticate } from "../midlewares/auth.js";
@@ -15,5 +15,8 @@ router.route("/createcourse").post(isAuthanticate, adminAuthanticate, singleuplo
 
 router.route("/course/:id").get(isAuthanticate, getcourseleture)
     .post(isAuthanticate, adminAuthanticate, singleupload, addcourseleture)
-    .delete(isAuthanticate, adminAuthanticate, deletCourse)
+    .delete(isAuthanticate, adminAuthanticate, deletCourse);
+
+router.route("/lecture").delete(isAuthanticate, adminAuthanticate, deletlecture)
+
 export default router;
