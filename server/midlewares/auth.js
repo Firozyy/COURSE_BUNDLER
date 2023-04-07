@@ -26,3 +26,11 @@ export const adminAuthanticate =  (req,res,next) => {
    }
    next();
 };
+
+export const SubscriberAuthanticate =  (req,res,next) => {
+   if(req.user.subscription.status != "active"  && req.user.role != "admin"){
+      return next(new ErrorHandler(`only subscribers can access this resources` ,403));
+     
+   }
+   next();
+};

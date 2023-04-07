@@ -8,6 +8,7 @@ import { Course } from "../model/Course.js";
 import cloudinary from 'cloudinary'
 import getDataUri from "../utils/dataUri.js";
 
+import {Stat} from '../model/stats.js'
 
 export const register = catchasyncerrer(async (req, res, next) => {
 
@@ -26,7 +27,7 @@ export const register = catchasyncerrer(async (req, res, next) => {
         return next(new ErrorHandler("user already registered", 409))
     };
 
-   
+
     const fileUri = getDataUri(file);
 
     const mycloud = await cloudinary.v2.uploader.upload(fileUri.content);
@@ -161,18 +162,18 @@ export const updateprfilepicture = catchasyncerrer(async (req, res, next) => {
 
     const fileUri = getDataUri(file);
 
-    
+
 
     const mycloud = await cloudinary.v2.uploader.upload(fileUri.content);
     // cloudinary add
     await cloudinary.v2.uploader.destroy(user.avatar.public_id);
 
 
-    user.avatar={
-      public_id:mycloud.public_id,
-      url:mycloud.secure_url
+    user.avatar = {
+        public_id: mycloud.public_id,
+        url: mycloud.secure_url
     }
-   
+
     await user.save();
 
     res.status(200).json({
@@ -330,3 +331,122 @@ export const removeFromplaylistt = catchasyncerrer(async (req, res, next) => {
         message: 'password chnage successfully',
     })
 });
+
+
+
+
+//admin controles
+
+
+
+export const getallUsers = catchasyncerrer(async (req, res, next) => {
+
+    const users = await User.find({})
+
+
+    res.status(200).json({
+        success: true,
+        users
+
+    })
+
+
+
+});
+
+
+//updateUsrRole
+export const updateUsrRole = catchasyncerrer(async (req, res, next) => {
+
+    const user = await User.findById(req.params.id)
+
+    if (!user) return next(new ErrorHandler("user not found", 404))
+
+
+    if (user.role === 'user') {
+        user.role = "admin"
+    }
+    else {
+        user.role = "user"
+    }
+
+    await user.save();
+    res.status(200).json({
+        success: true,
+        message: 'role updated'
+
+    })
+
+
+
+});
+
+//delet profile
+
+
+export const deletprofile = catchasyncerrer(async (req, res, next) => {
+console.log('check delet2 pr222222222222222222222222222222222222222');
+    const { id } = req.params;
+    const user = await User.findById(id)
+
+    if (!user) return next(new ErrorHandler("user not found", 404))
+
+    //delet profile picture from cloud
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+
+    await user.deleteOne({id});
+
+    res.status(200).json({
+        success: true,
+        message: 'User deleted ,succesfully updated'
+
+    })
+
+
+
+});
+
+
+//deletmyprofile
+
+
+export const deletmyprofile = catchasyncerrer(async (req, res, next) => {
+log
+    const id = req.user._id;
+    const user = await User.findById(id)
+
+    if (!user) return next(new ErrorHandler("user not found", 404))
+
+    console.log(user);
+    //delet profile picture from cloud
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+
+    // await user.deleteOne();
+
+    res.status(200)
+        .cookie("token", null, {
+            expires: new Date(Date.now())
+        })
+        .json({
+            success: true,
+            message: 'profile deleted ,succesfully updated'
+
+        })
+
+
+
+});
+
+User.watch().on("change", async () => {
+    const stats =await Stat.find({}).sort({createdAT:"desc"}).limit(1);
+
+    const subscriotion = await User.find({"subscription.status":'active'})
+    stats[0].users =await User.countDocuments()
+
+    stats[0].subsciption=subscriotion.length;
+
+    stats[0].createdAT=new Date(Date.now()).length;
+
+
+    await stats.save();
+})

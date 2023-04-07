@@ -15,9 +15,13 @@ app.use(express.urlencoded({
 }));
 //importing use routes &routes
 import course from './routes/courseRoute.js';
-import user from './routes/userRoutes.js'
+import user from './routes/userRoutes.js';
+import payment from './routes/paymentRout.js'
+import other from './routes/othertRoutes.js'
 app.use("/api/v1",course);
 app.use("/api/v1",user);
+app.use("/api/v1",payment);
+app.use("/api/v1",other);
 export default app;
 //import 
 app.use(ErrerMiddleware);

@@ -3,10 +3,25 @@ import { Course } from "../model/Course.js";
 import getDataUri from "../utils/dataUri.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import cloudinary from 'cloudinary'
+import {Stat} from '../model/stats.js'
 
 export const getAllCourse = catchasyncerrer(
   async (req, res, next) => {
-    const courses = await Course.find().select("-letures");
+
+    const keyword = req.query.keyword || "";
+    const catagory = req.query.catagory || "";
+
+    const courses = await Course.find({
+      title:{
+      $regex:keyword,
+       $options:"i"
+      },
+      catagory:{
+        $regex:catagory,
+         $options:"i"
+        },
+     
+    }).select("-letures");
     res.status(200).json({
       success: true,
       courses,
@@ -161,6 +176,7 @@ export const deletlecture = catchasyncerrer(async (req, res, next) => {
 
   //video delet from cloud end >>>
 
+
 //lecture delet from database
 
 course.lectures = course.lectures.filter((item) => {
@@ -179,3 +195,20 @@ course.lectures = course.lectures.filter((item) => {
   });
 }
 );
+
+
+Course.watch().on("change", async () => {
+  const stats = await Stat.find({}).sort({ createdAt: "desc" }).limit(1);
+
+  const courses = await Course.find({});
+
+  let totalViews = 0;
+
+  for (let i = 0; i < courses.length; i++) {
+    totalViews += courses[i].views;
+  }
+  stats[0].views = totalViews;
+  stats[0].createdAT = new Date(Date.now());
+
+  await stats[0].save();
+});
