@@ -2,10 +2,19 @@ import  express  from "express";
 import dotenv from 'dotenv';
 import ErrerMiddleware from './midlewares/errer.js'
 import cookieparser from "cookie-parser"
+import cors from  'cors'
+
 dotenv.config({path:'./config/.env'});
 
 const app= express();
+//cors platform
 
+app.use(cors({
+    origin:process.env.frontend_url,
+    credentials:true,
+    methods:["GET","POST","DELETE","PUT",]
+
+}))
 app.use(cookieparser());
 
 //using midleares

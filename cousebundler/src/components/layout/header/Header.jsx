@@ -3,7 +3,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { RiDashboardFill, RiLogoutBoxLine, RiMenu5Fill } from "react-icons/ri";
 import { ColorModeSwitcher } from '../../../ColorModeSwitcher.js'
-
+import { useDispatch,} from 'react-redux'
+import { logout } from '../../../redux/Action/action.js';
 //created compenent
 const Linkbutton = ({ url = '/', title = "home", onClose }) => (
     <Link onClick={onClose} to={url}>
@@ -12,16 +13,15 @@ const Linkbutton = ({ url = '/', title = "home", onClose }) => (
 )
 
 
-function Header() {
+function Header({ isAuthenticated = false, user }) {
     const { isOpen, onClose, onOpen } = useDisclosure()
-    const isAuthanticated = true
-    const user = {
-        role: 'admin'
-    };
+
+    const dispatch = useDispatch();
 
     const logouthandler = () => {
-        console.log("logout");
+        
         onClose();
+        dispatch(logout())
     };
 
     return (
@@ -60,7 +60,7 @@ function Header() {
                                 position='absolute'
                                 bottom={'2rem'} width='80%'
                             >
-                                {isAuthanticated ? (<>
+                                {isAuthenticated ? (<>
                                     <VStack>
                                         <HStack>
                                             <Link onClick={onClose} to={"/profile"}>

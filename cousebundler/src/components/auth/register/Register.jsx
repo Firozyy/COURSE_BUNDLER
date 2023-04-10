@@ -1,7 +1,8 @@
 import { Avatar, Box, Button, Container, FormLabel, Heading, Input, VStack } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-
+import { useDispatch } from 'react-redux'
+import { register } from '../../../redux/Action/action.js'
 export const fileuploderCss = {
     cursor: "poimter", marginLeft: '-5%', width: '110%', border: 'none', height: "100%", color: "ECC948", backgroundColor: 'white'
 }
@@ -14,6 +15,7 @@ function Register() {
     const [password, setPassword] = useState('')
     const [ImagePrev, setImagePrev] = useState('')
     const [imAge, setImage] = useState('')
+  
 
     const changeImageHnadler = (e) => {
         const file = e.target.files[0];
@@ -25,12 +27,23 @@ function Register() {
         };
     };
 
+    const dispatch = useDispatch();
+    const registerhandler = (e) => {
+        e.preventDefault();
+        const myForm = new FormData();
+
+        myForm.append("name", name);
+        myForm.append("email", email);
+        myForm.append("password", password);
+        myForm.append("file", imAge);
+        dispatch(register(myForm));
+    };
     return (
         <Container >
             <VStack h={'full'} justifyContent='center' spacing={'16'}>
                 <Heading children='Registration' />
 
-                <form style={{ width: "100%" }} >
+                <form onSubmit={registerhandler} style={{ width: "100%" }} >
                     <Box my={'4'} display='flex' justifyContent={'center'} >
                         <Avatar src={ImagePrev} size={'2xl'} />
                     </Box>

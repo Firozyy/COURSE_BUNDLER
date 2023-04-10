@@ -9,6 +9,7 @@ import cloudinary from 'cloudinary'
 import getDataUri from "../utils/dataUri.js";
 
 import {Stat} from '../model/stats.js'
+import { log } from "console";
 
 export const register = catchasyncerrer(async (req, res, next) => {
 
@@ -29,6 +30,7 @@ export const register = catchasyncerrer(async (req, res, next) => {
 
 
     const fileUri = getDataUri(file);
+    
 
     const mycloud = await cloudinary.v2.uploader.upload(fileUri.content);
 
@@ -385,7 +387,7 @@ export const updateUsrRole = catchasyncerrer(async (req, res, next) => {
 
 
 export const deletprofile = catchasyncerrer(async (req, res, next) => {
-console.log('check delet2 pr222222222222222222222222222222222222222');
+
     const { id } = req.params;
     const user = await User.findById(id)
 
@@ -438,15 +440,17 @@ log
 });
 
 User.watch().on("change", async () => {
-    const stats =await Stat.find({}).sort({createdAT:"desc"}).limit(1);
 
-    const subscriotion = await User.find({"subscription.status":'active'})
-    stats[0].users =await User.countDocuments()
+    const stats = await Stat.find({}).sort({createdAT:"desc"}).limit(1);
 
-    stats[0].subsciption=subscriotion.length;
+    const subscriotion = await User.find({"subscription.status":'active'});
 
-    stats[0].createdAT=new Date(Date.now()).length;
+    stats[0].users = await User.countDocuments();
 
+    stats[0].subsciption = subscriotion.length;
 
-    await stats.save();
+    stats[0].createdAT = new Date(Date.now());
+
+    await stats[0].save();
+    
 })
