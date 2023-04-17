@@ -254,9 +254,6 @@ export const addtoplaylist = catchasyncerrer(async (req, res, next) => {
 
     const user = await User.findById(req.user._id);
 
-
-
-
     const course = await Course.findById(req.body.id);
 
 

@@ -6,11 +6,11 @@ const schema = new mongoose.Schema({
         type:String,
         required:true
     }, 
-    razarpay_paymentID:{
+    razorpay_payment_id:{
         type:String,
         required:true
     }, 
-    razarpay_subscription_id:{
+    razorpay_subscription_id:{
         type:String,
         required:true
     },

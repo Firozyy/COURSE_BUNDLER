@@ -1,8 +1,11 @@
-import { Box, Button, Container, Grid, Heading, Image, Input, Select, VStack } from '@chakra-ui/react'
-import React from 'react'
+import { Button, Container, Grid, Heading, Image, Input, Select, VStack } from '@chakra-ui/react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useState } from 'react'
 import cursor from '../../../assets/images/cursor.png'
 import Sidebar from '../Sidebar'
+import { creatCourse } from '../../../redux/Action/admin'
+import { toast } from 'react-hot-toast'
 function Createcourse() {
   const [title, setTitle] = useState('')
   const [createdBy, setCreatedBy] = useState('')
@@ -21,7 +24,7 @@ function Createcourse() {
   ];
   const fileuploderCss = {
     cursor: "poimter", marginLeft: '-5%', width: '110%', border: 'none', height: "100%", color: "ECC948", backgroundColor: 'white'
-}
+  }
   const changeImageHandler = e => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -33,6 +36,36 @@ function Createcourse() {
       setImage(file);
     };
   };
+
+  //     { title, catagory, discription, createdBy 
+  const { loading, error, message } = useSelector(state => state.admin);
+
+  const dispatch = useDispatch();
+  const submitHandler = (e) => {
+    e.preventDefault();
+
+    const myForm = new FormData();
+
+    myForm.append("title", title);
+    myForm.append("catagory", category);
+    myForm.append("discription", description);
+    myForm.append("createdBy", createdBy);
+
+    myForm.append("file", image);
+    dispatch(creatCourse(myForm));
+  };
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearError" })
+    }
+    if (message) {
+      toast.success(message);
+      dispatch({ type: "clearmessage" })
+    }
+  }, [error,message,dispatch])
+  
   return (
     <Grid
       css={{ cursor: `url(${cursor}),default` }}
@@ -40,7 +73,7 @@ function Createcourse() {
       templateColumns={['1fr', "5fr 1fr"]}
     >
       <Container py="16">
-        <form >
+        <form onSubmit={submitHandler}  >
 
           <Heading
             textTransform={'uppercase'}
@@ -100,8 +133,8 @@ function Createcourse() {
             {imagePrev && (
               <Image src={imagePrev} boxSize="64" objectFit={'contain'} />
             )}
-             <Button
-             
+            <Button
+              isLoading={loading}
               w="full"
               colorScheme={'purple'}
               type="submit"
@@ -113,7 +146,7 @@ function Createcourse() {
 
       </Container>
 
-    
+
       <Sidebar />
     </Grid>
   )

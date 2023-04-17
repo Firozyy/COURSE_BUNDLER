@@ -4,25 +4,44 @@ import React from 'react'
 import { RiDeleteBin7Fill } from 'react-icons/ri'
 import cursor from '../../../assets/images/cursor.png'
 import Sidebar from '../Sidebar'
+import {useDispatch, useSelector} from 'react-redux'
+import { deleteuser, getAlluser, updateuser } from '../../../redux/Action/admin'
+import { useEffect } from 'react'
+import { toast } from 'react-hot-toast'
 function User() {
-  const users = [{
-    id: "a1",
-    Name:
-      "abisheke",
-    Role: 'admin',
-    Subscription: {
-      status: 'active'
-    },
-    Email: "sjhf@RiGll.com"
-  }];
+  const dispatch =useDispatch()
+  const {users,loading,error,message} =useSelector(state => state.admin);
+  console.log(users);
+  // const users = [{
+  //   id: "a1",
+  //   Name:
+  //     "abisheke",
+  //   Role: 'admin',
+  //   Subscription: {
+  //     status: 'active'
+  //   },
+  //   Email: "sjhf@RiGll.com"
+  // }];
 
   const updatehandler = (userid) => {
-    console.log(userid);
+    dispatch(updateuser(userid))
   }
   const delethandler = (userid) => {
-    console.log(userid);
+    dispatch(deleteuser(userid))
   }
 
+useEffect(() => {
+
+  dispatch(getAlluser())
+  if (error) {
+    toast.error(error);
+    dispatch({ type: "clearError" })
+  }
+  if (message) {
+    toast.success(message);
+    dispatch({ type: "clearmessage" })
+  }
+}, [dispatch,error,message])
 
 
   return (
@@ -56,8 +75,8 @@ function User() {
             </Thead>
             <Tbody>
               {
-                users.map(item => (
-                  <Row updatehandler={updatehandler} delethandler={delethandler} key={item.id} item={item} />
+               users && users.map(item => (
+                  <Row updatehandler={updatehandler} delethandler={delethandler} key={item._id} item={item} loading={loading} />
                 ))
               }
 
@@ -74,22 +93,23 @@ function User() {
 export default User
 
 
-function Row({ item, updatehandler, delethandler }) {
+function Row({ item, updatehandler, delethandler,loading }) {
   return (
     <Tr>
-      <Td>{item.id}</Td>
-      <Td>{item.Name}</Td>
-      <Td>{item.Email}</Td>
-      <Td>{item.Role}</Td>
+      <Td>{item._id}</Td>
+      <Td>{item.name}</Td>
+      <Td>{item.email}</Td>
+      <Td>{item.role}</Td>
 
       <Td >
-        #{item.Subscription.status === 'activ' ? "Activ " : "Not Active"}
+        #{item.subscription && item.subscriptionstatus === 'activ' ? "Activ " : "Not Active"}
+
       </Td>
       <Td isNumeric>
         <HStack justifyContent={'flex-end'}>
-          <Button onClick={() => updatehandler(item.id)} color={'purple.500'} variant={'outline'}>Change role</Button>
+          <Button isLoading={loading}  onClick={() => updatehandler(item._id)} color={'purple.500'} variant={'outline'}>Change role</Button>
 
-          <Button onClick={() => delethandler(item.id)} color={"purple.500"} >
+          <Button isLoading={loading}  onClick={() => delethandler(item._id)} color={"purple.500"} >
             <RiDeleteBin7Fill />
           </Button>
         </HStack>

@@ -9,7 +9,7 @@ const router = express.Router();
 
 
 router.route("/subscribe").get(isAuthanticate,buySubsriptiion);
-router.route("/paymentverification").get(isAuthanticate,paymentVerification);
+router.route("/paymentverification").post(isAuthanticate,paymentVerification);
 router.route("/subscribe/cancel").delete(isAuthanticate,cancelSubscription);
 router.route("/razorpaykey").get(getrazarPayKEy,getrazarPayKEy);
 

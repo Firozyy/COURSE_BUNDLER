@@ -1,10 +1,15 @@
 import { Text, Button, Container, Heading, HStack, Input, Stack, VStack, Image } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import './courses.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { getallcousrses } from '../../redux/Action/cousrseAction'
+import { toast } from "react-hot-toast"
+import { addtoplaylist } from '../../redux/Action/profile'
+import {getmyprofile} from '../../redux/Action/action'
 //element creation
 
-const Course = ({ views, title, id, imageSrc, addtoplaylisthandler, creator, discription, lecturecount }) => {
+const Course = ({ loading, views, title, id, imageSrc, addtoplaylisthandler, creator, discription, lecturecount }) => {
     return (
         <VStack className='course' alignItems={['center', 'flex-start']}>
             <Image src={imageSrc} boxSize='60' objectFit={'contain'} />
@@ -17,14 +22,22 @@ const Course = ({ views, title, id, imageSrc, addtoplaylisthandler, creator, dis
                 <Text fontFamily={'body'} textTransform='uppercase' noOfLines={2} children={creator} />
             </HStack>
             <Heading textAlign={'center'} size='xs' children={`Lecture -${lecturecount}`} textTransform='uppercase' />
+            <Heading
+                size="xs"
+                children={`Views - ${views}`}
+                textTransform="uppercase"
+            />
             <Stack direction={['column', 'row']} alignItems='center'>
                 <Link to={`/course/${id}`}>
                     <Button colorScheme={'yellow'}>Watch Now</Button>
-                    <Button variant={'ghost'} colorScheme={'yellow'}
-                        onClick={() => addtoplaylisthandler(id)}>
-                        Add To Playlist</Button>
-                </Link>
 
+                </Link>
+                <Button
+                    isLoading={loading}
+                    variant={'ghost'} colorScheme={'yellow'}
+                    onClick={() => addtoplaylisthandler(id)}>
+                    Add To Playlist
+                </Button>
             </Stack>
 
         </VStack>
@@ -35,9 +48,15 @@ const Course = ({ views, title, id, imageSrc, addtoplaylisthandler, creator, dis
 function Courses() {
     const [keyword, setkeyword] = useState('')
     const [catagory, setCatagory] = useState('')
-    const addtoplaylisthandler = () => {
-        console.log("added to playlist");
+    const dispatch = useDispatch();
+
+
+    const addtoplaylisthandler = async (courseId) => {
+
+        await dispatch(addtoplaylist(courseId))
+        dispatch(getmyprofile())
     };
+
 
     const catogories = [
 
@@ -47,6 +66,26 @@ function Courses() {
         "Appdeveloopment",
         "Gamedevelopment"
     ];
+
+    const { courses, loading, errer, message } = useSelector(state => state.cources)
+
+console.log(errer);
+
+    useEffect(() => {
+        dispatch(getallcousrses(catagory, keyword));
+
+        if (errer) {
+            toast.error(errer);
+            dispatch({ type: "clearError" })
+        }
+        if (message) {
+            toast.success(message);
+            dispatch({ type: "clearmessage" })
+        }
+
+
+    }, [catagory, keyword, dispatch, errer, message])
+
     return (
         <Container minH={'95vh'} maxW='container.lg' paddingY={'8'}>
             <Heading children='ALL COURSES' margin={'8'} />
@@ -72,16 +111,24 @@ function Courses() {
                 alignItems={['center', 'flex-start']}
 
             >
-                <Course title={'sample'}
-                    discription={"sample"}
-                    views={23}
-                    id={"sample"}
-                    creator={"boy"}
-                    lecturecount={2}
-                    imageSrc={"https://www.thebigredgroup.com/wp-content/uploads/2021/07/5-reasons.jpg"}
-                    addtoplaylisthandler={addtoplaylisthandler}
+                {
+                    courses.length > 0 ? courses.map((item) => (
+                        <Course
+                            key={item._id}
+                            views={item.views}
+                            title={item.title}
+                            discription={item.discription}
 
-                />
+                            id={item._id}
+                            creator={item.createdBy}
+                            lecturecount={item.noOfvideos}
+                            imageSrc={item.poster.url}
+                            addtoplaylisthandler={addtoplaylisthandler}
+                            loading={loading}
+
+                        />
+                    )) : <Heading>cousrse not found</Heading>
+                }
             </Stack>
         </Container>
     )

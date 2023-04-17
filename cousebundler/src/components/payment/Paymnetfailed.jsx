@@ -1,27 +1,22 @@
-import { Button } from '@chakra-ui/react';
-import React from 'react'
-import { Link } from 'react-router-dom'
+import { Button, Container, Heading, VStack } from '@chakra-ui/react';
+import React from 'react';
 import { RiErrorWarningFill } from 'react-icons/ri';
-function Paymnetfailed() {
+import { Link } from 'react-router-dom';
+
+const Paymnetfailed = () => {
   return (
-    <div className="notfound">
-      <div className="errer">
-        <div >
-          <RiErrorWarningFill className='errersymbol'/>
-        </div>
-        <div className="errermessage">
-        <h1> PAYMENT FAILD !</h1>
-          <Link to={"/subscribe"} >
-            <Button variant={'link'} w='full'>Try Again</Button>
-          </Link>
+    <Container h="90vh">
+      <VStack justifyContent={'center'} h="full" spacing={'4'}>
+        <RiErrorWarningFill size={'5rem'} />
+        <Heading textTransform={'uppercase'}>Payment Fail</Heading>
+        <Link to="/subscribe">
+          <Button variant={'ghost'}>Try Again</Button>
+        </Link>
+      </VStack>
+    </Container>
+  );
+};
 
-        </div>
-
-
-      </div>
-    </div>
-  )
-}
 
 
 export default Paymnetfailed

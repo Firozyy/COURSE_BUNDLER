@@ -33,9 +33,9 @@ export const buySubsriptiion = catchasyncerrer(async (req, res, next) => {
 
     await user.save();
 
-    res.status(200).json({
+    res.status(201).json({
         status: true,
-        message: 'payment success',
+
         subscriptionID: subscription.id,
     })
 });
@@ -44,27 +44,41 @@ export const buySubsriptiion = catchasyncerrer(async (req, res, next) => {
 //payment verification
 export const paymentVerification = catchasyncerrer(async (req, res, next) => {
 
-    const { razorpay_signature, razarpay_paymentID, razarpay_subscription_id } = req.body;
+    const { razorpay_signature, razorpay_payment_id, razorpay_subscription_id } = req.body;
+
     const user = await User.findById(req.user._id);
 
 
+    const subscription_id = user.subscription.id;
 
-    const subscriptionId = user.subscription._id
-    const genratedSignature = crypto.createHmac("sha256", process.env.API_Secret).update(razarpay_paymentID + "|" + subscriptionId, 'utf8').digest('hex');
+
+    const genratedSignature = crypto.createHmac("sha256", process.env.razorpay_SecretKey)
+
+        .update(razorpay_payment_id + "|" + subscription_id, "utf-8")
+        .digest("hex");
+
     const authenticated = genratedSignature === razorpay_signature
 
-    if (!authenticated)
+    if (!authenticated) {
         return res.redirect(`${process.env.frontend_url}/paymentfailed`)
-    //database comes here
-    await Payment.create({
-        razorpay_signature, razarpay_paymentID, razarpay_subscription_id
-    });
+    }
 
 
-    user.subscription.status = 'active';
+    user.subscription.status = "active";
+
     await user.save();
-    res.redirect(`${process.env.frontend_url}/paymentsuccess?refrence=${razarpay_paymentID}`)
+
+
+    await Payment.create({
+        razorpay_signature,
+        razorpay_payment_id,
+        razorpay_subscription_id,
+    });
+    res.redirect(
+        `${process.env.frontend_url}/paymnetsucces?reference=${razorpay_payment_id}`
+    );
 });
+
 
 
 //getrazarPayKEy
@@ -85,12 +99,12 @@ export const cancelSubscription = catchasyncerrer(async (req, res, next) => {
     const subscriptionID = user.subscription.id;
 
     let refund = false;
- 
-   instance.subscriptions.cancel(subscriptionID);
-   
+
+    instance.subscriptions.cancel(subscriptionID);
+
     const payment = await Payment.findOne({
 
-        razarpay_subscription_id: subscriptionID
+        razorpay_subscription_id: subscriptionID
     });
 
 
@@ -101,7 +115,7 @@ export const cancelSubscription = catchasyncerrer(async (req, res, next) => {
 
 
     if (refundTime > gap) {
-        await instance.payments.refund(payment.razarpay_paymentID);
+        await instance.payments.refund(payment.razorpay_payment_id);
         refund = true;
     }
 
@@ -109,7 +123,7 @@ export const cancelSubscription = catchasyncerrer(async (req, res, next) => {
     user.subscription.id = undefined
     user.subscription.status = undefined
 
- 
+
     await user.save();
 
     res.status(200).json({

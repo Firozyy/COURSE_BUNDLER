@@ -6,14 +6,14 @@ import { useState } from 'react';
 import { RiDeleteBin7Fill } from 'react-icons/ri'
 import fileUploadCss from '../../auth/register/Register';
 
-function Cousrsemodel({ isOpen, onClose, id, addLectureHandler, deleteButtonHandler, coursetitle, Lectures = [1,2,3,4,5,6,7,8,9,] }) {
+function Cousrsemodel({ isOpen, onClose, id, addLectureHandler, deleteButtonHandler, coursetitle, lectures, loading }) {
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [video, setVideo] = useState('');
     const [videoPrev, setVideoPrev] = useState('');
 
-    const courseTitle = "React"
+    const courseTitle = coursetitle
     const changeVideoHandler = e => {
         const file = e.target.files[0];
         const reader = new FileReader();
@@ -56,17 +56,20 @@ function Cousrsemodel({ isOpen, onClose, id, addLectureHandler, deleteButtonHand
                                 <Heading children={`#${id}`} size="sm" opacity={0.4} />
                             </Box>
                             <Heading children={'Lectures'} size="lg" />
-                           
+
                             {
-                                Lectures.map((e,i)=>(
+                                lectures.map((e, i) => (
                                     <VideoCard
-                                     title={'reactintro'}
-                                    description={'this is a intro video'}
-                                    lectureId={'sdfsdfsdf'}
-                                    num={i+1}
-                                    courseId={id}
-                                    deleteButtonHandler={deleteButtonHandler}
-                                />
+                                        title={e.title}
+                                        description={e.description}
+
+                                        lectureId={e._id}
+                                        num={i + 1}
+                                        courseId={id}
+                                        deleteButtonHandler={deleteButtonHandler}
+                                        key={i}
+                                        loading={loading}
+                                    />
                                 ))
                             }
                         </Box>
@@ -118,7 +121,7 @@ function Cousrsemodel({ isOpen, onClose, id, addLectureHandler, deleteButtonHand
                                     )}
 
                                     <Button
-
+                                        isLoading={loading}
                                         w="full"
                                         colorScheme={'purple'}
                                         type="submit"
@@ -148,6 +151,7 @@ function VideoCard({
     lectureId,
     courseId,
     deleteButtonHandler,
+    loading
 
 }) {
     return (
@@ -164,7 +168,7 @@ function VideoCard({
                 <Text children={description} />
             </Box>
 
-            <Button
+            <Button isLoading={loading}
 
                 color={'purple.600'}
                 onClick={() => deleteButtonHandler(courseId, lectureId)}

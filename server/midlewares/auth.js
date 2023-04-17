@@ -6,6 +6,7 @@ import { User } from "../model/User.js";
 export const isAuthanticate = catchasyncerrer(async (req, res, next) => {
  
     const {token}=req.cookies;
+    
 
  if(!token){
     return next(new ErrorHandler('no token/not logined',401)) 

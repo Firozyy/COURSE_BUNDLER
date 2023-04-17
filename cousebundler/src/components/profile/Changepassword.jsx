@@ -1,12 +1,40 @@
 import { Button, Container, Heading, Input, VStack } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { changePassword } from '../../redux/Action/profile'
+import { toast } from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
+
+
 
 function Changepassword() {
-    const [oldpassword,setoldpassword]=useState('')
-    const [newpassword,setNewpassword]=useState('')
+    const [oldPassword, setoldpassword] = useState('')
+    const [newPassword, setNewpassword] = useState('')
+const navigate =useNavigate();
+    const dispatch = useDispatch()
+    const submithandler = (e) => {
+        e.preventDefault()
+        dispatch(changePassword(oldPassword, newPassword))
+        navigate('/profile')
+    }
+    const { loading, message, error } = useSelector( state => state.profile);
+    useEffect(() => {
+
+        if (error) {
+          toast.error(error);
+          dispatch({ type: "clearError" })
+        }
+        if (message) {
+          toast.success(message);
+          dispatch({ type: "clearmessage" })
+        }
+    
+    
+      }, [dispatch, error, message]);
+
     return (
         <Container py={'16'} minH={'90vh'}>
-            <form >
+            <form onSubmit={submithandler} >
                 <Heading
                     textTransform={'uppercase'}
                     my='16'
@@ -17,7 +45,7 @@ function Changepassword() {
                     <Input
                         required
 
-                        value={oldpassword}
+                        value={oldPassword}
                         onChange={(e) => setoldpassword(e.target.value)}
                         placeholder='Enter old password'
                         type={'password'}
@@ -26,13 +54,13 @@ function Changepassword() {
                     <Input
                         required
 
-                        value={newpassword}
+                        value={newPassword}
                         onChange={(e) => setNewpassword(e.target.value)}
                         placeholder='Ente New password'
                         type={'password'}
                         focusBorderColor='yellow.500'
                     />
-                    <Button w={"full"} type='submit' colorScheme={'yellow'}>change</Button>
+                    <Button isLoading={loading} w={"full"} type='submit' colorScheme={'yellow'}>change</Button>
                 </VStack>
             </form>
         </Container>
