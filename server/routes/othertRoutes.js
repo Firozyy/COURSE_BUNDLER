@@ -9,7 +9,7 @@ const router = express.Router();
 
 
 router.route("/contact").post(isAuthanticate,contact);
-router.route("/coursereques").post(isAuthanticate,courseReques);
+router.route("/courserequest").post(isAuthanticate,courseReques);
 
 
 router.route("/coursereques").post(isAuthanticate,courseReques);

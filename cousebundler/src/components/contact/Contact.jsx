@@ -1,17 +1,40 @@
 import { Box, Button, Container, Heading, Input, Textarea, VStack } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FormLabel } from 'react-bootstrap'
 import {Link} from 'react-router-dom'
+import { contactUs } from '../../redux/Action/otherAction.js'
+import {useDispatch, useSelector} from 'react-redux'
+import { toast } from 'react-hot-toast'
 
 function Contact() {
     const [email, setEmail] = useState('');
     const [name, setname] = useState('');
     const [message, setmessage] = useState('');
+   const dispatch = useDispatch();
+   const submithandler =(e)=>{
+e.preventDefault()
+dispatch(contactUs(name,email,message))
+
+   }
+   const {loading ,error,message:statemessage} =useSelector( state => state.other);
+   useEffect(() => {
+
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearError" })
+    }
+    if (statemessage) {
+      toast.success(statemessage);
+      dispatch({ type: "clearmessage" })
+    }
+
+
+  }, [dispatch, error, statemessage]);
     return (
         <Container h={'90vh'}>
             <VStack h={'full'} spacing='16' justifyContent={'center'} >
                 <Heading children='CONTACT US' />
-                <form style={{ width: "100%" }} >
+                <form onSubmit={submithandler}  style={{ width: "100%" }} >
                     <Box my={'4'}>
                         <FormLabel htmlFor='name' children='Name' />
                         <Input
@@ -51,8 +74,8 @@ function Contact() {
                  
                  
                
-                    <Button my={'4'} colorScheme={'yellow'} type='submit'>
-                        Login
+                    <Button isLoading={loading} my={'4'} colorScheme={'yellow'} type='submit'>
+                        send
                     </Button>
                     <Box my={'2'}>
                        Request a new course?{' '}

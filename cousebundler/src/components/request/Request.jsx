@@ -1,17 +1,40 @@
 import { Box, Button, Container, Heading, Input, Textarea, VStack } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FormLabel } from 'react-bootstrap'
 import {Link} from 'react-router-dom'
-
+import { couurserequest } from '../../redux/Action/otherAction';
+import {useDispatch, useSelector} from 'react-redux'
+import { toast } from 'react-hot-toast'
 function Request() {
     const [email, setEmail] = useState('');
     const [name, setname] = useState('');
     const [course, setcourse] = useState('');
+    const dispatch = useDispatch();
+
+    const submithandler =(e)=>{
+        e.preventDefault()
+        dispatch(couurserequest(name,email,course))
+        
+           }
+           const {loading ,error,message} =useSelector( state => state.other);
+           useEffect(() => {
+        
+            if (error) {
+              toast.error(error);
+              dispatch({ type: "clearError" })
+            }
+            if (message) {
+              toast.success(message);
+              dispatch({ type: "clearmessage" })
+            }
+        
+        
+          }, [dispatch, error, message]);
     return (
         <Container h={'90vh'}>
             <VStack h={'full'} spacing='16' justifyContent={'center'} >
                 <Heading children='Request a course' />
-                <form style={{ width: "100%" }} >
+                <form onSubmit={submithandler} style={{ width: "100%" }} >
                     <Box my={'4'}>
                         <FormLabel htmlFor='name' children='Name' />
                         <Input
@@ -51,8 +74,8 @@ function Request() {
                  
                  
                
-                    <Button my={'4'} colorScheme={'yellow'} type='submit'>
-                        Login
+                    <Button isLoading={loading} my={'4'} colorScheme={'yellow'} type='submit'>
+                    Request
                     </Button>
                     <Box my={'2'}>
                        See available courses?{' '}

@@ -71,7 +71,8 @@ export const getdashbordStats = catchasyncerrer(async (req, res, next) => {
     }
 
     const usersCount = statsData[11].users;
-    const subscriptionCount = statsData[11].subscription;
+    
+    const subscriptionCount = statsData[11].subsciption;
     const viewsCount = statsData[11].views;
 
  
