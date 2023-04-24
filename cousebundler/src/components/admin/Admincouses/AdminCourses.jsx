@@ -92,8 +92,9 @@ function AdminCourses() {
             <Thead>
               <Tr>
                 <Th>Id</Th>
-                <Th>Poster</Th>
                 <Th>Title</Th>
+                <Th>Poster</Th>
+                
                 <Th>Catatagory</Th>
                 <Th>Creator</Th>
                 <Th isNumeric>Views</Th>
@@ -134,7 +135,7 @@ function Row({ item, CourscedetailsHandler, delethandler, loading }) {
   return (
     <Tr>
       <Td>{item._id}</Td>
-      <Td>{item.title}</Td>
+      <Td>{item.title} </Td>
       <Td>
         <Image src={item.poster.url} />
       </Td>
