@@ -7,6 +7,17 @@ import cors from  'cors'
 dotenv.config({path:'./config/.env'});
 
 const app= express();
+import path from "path"
+const _dirname= path.dirname('')
+const buildpath = path.join(_dirname ,"../cousebundler/build") ;
+
+app.use(express.static(buildpath))
+
+app.get('/',function( req, res)  {
+    res.sendFile(path.join(buildpath));
+
+})
+
 //cors platform
 
 app.use(cors({
